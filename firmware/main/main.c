@@ -35,11 +35,8 @@ void app_main(void) {
     ret = display_init(&display_config, &display);
     assert(ret == DISPLAY_OK);
 
-    delay_ms(5000);
-
     ret = display_clear(&display);
     assert(ret == DISPLAY_OK);
-
 
     while (1) {
         delay_s(1);
