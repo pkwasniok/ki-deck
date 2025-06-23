@@ -1,8 +1,9 @@
-#include "display.h"
+#include "display/display.h"
 
 #include <string.h>
 
-#include "utils/delay.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 
 #include "esp_log.h"
 #include "driver/spi_common.h"
@@ -72,9 +73,9 @@ display_err_t display_init_driver(display_config_t* config, display_handle_t* di
 
     // Reset driver
     gpio_set_level(config->gpio_num_res, 0);
-    delay_ms(100);
+    vTaskDelay(100 / portTICK_PERIOD_MS);
     gpio_set_level(config->gpio_num_res, 1);
-    delay_ms(400);
+    vTaskDelay(400 / portTICK_PERIOD_MS);
 
     // Disable display (0xAE)
     ret = display_write_command(display, 0xAE);

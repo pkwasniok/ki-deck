@@ -1,7 +1,7 @@
 #include "config.h"
 #include "utils/delay.h"
 
-#include "driver/display.h"
+#include "display/display.h"
 
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
