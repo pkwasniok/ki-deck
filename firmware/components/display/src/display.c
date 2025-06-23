@@ -97,6 +97,18 @@ display_err_t display_init_driver(display_config_t* config, display_handle_t* di
     ret = display_write_command(display, 0xA6);
     assert(ret == DISPLAY_OK);
 
+    // Flip vertical (C8)
+    if (config->flags & DISPLAY_FLAG_FLIP_VERTICAL) {
+        ret = display_write_command(display, 0xC8);
+        assert(ret == DISPLAY_OK);
+    }
+
+    // Flip horizontal (A1)
+    if (config->flags & DISPLAY_FLAG_FLIP_HORIZONTAL) {
+        ret = display_write_command(display, 0xA1);
+        assert(ret == DISPLAY_OK);
+    }
+
     // Enable display (0xAF)
     ret = display_write_command(display, 0xAF);
     assert(ret == DISPLAY_OK);

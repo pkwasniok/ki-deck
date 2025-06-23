@@ -11,6 +11,9 @@
 #define DISPLAY_OK       0
 #define DISPLAY_ERR_IO   1
 
+#define DISPLAY_FLAG_FLIP_HORIZONTAL 0b00000001
+#define DISPLAY_FLAG_FLIP_VERTICAL   0b00000010
+
 typedef int display_err_t;
 
 typedef struct {
@@ -18,6 +21,7 @@ typedef struct {
     gpio_num_t gpio_num_res;
     gpio_num_t gpio_num_cd;
     gpio_num_t gpio_num_cs;
+    int flags;
 } display_config_t;
 
 typedef struct {
