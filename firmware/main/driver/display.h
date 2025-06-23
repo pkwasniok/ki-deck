@@ -5,6 +5,9 @@
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+
 #define DISPLAY_OK       0
 #define DISPLAY_ERR_IO   1
 
@@ -27,4 +30,6 @@ display_err_t display_init(display_config_t* config, display_handle_t* display);
 
 display_err_t display_write_command(display_handle_t* display, uint8_t command);
 display_err_t display_write_data(display_handle_t* display, uint8_t* data, int length);
+
+display_err_t display_clear(display_handle_t* display);
 

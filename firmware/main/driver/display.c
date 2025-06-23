@@ -76,23 +76,23 @@ display_err_t display_init_driver(display_config_t* config, display_handle_t* di
     gpio_set_level(config->gpio_num_res, 1);
     delay_ms(400);
 
-    // Disable display
+    // Disable display (0xAE)
     ret = display_write_command(display, 0xAE);
     assert(ret == DISPLAY_OK);
 
-    // Charge pump
+    // Charge pump (0x8D, 0x14)
     ret = display_write_command(display, 0x8D);
     assert(ret == DISPLAY_OK);
     ret = display_write_command(display, 0x14);
     assert(ret == DISPLAY_OK);
 
-    // Addressing mode: horizontal
+    // Addressing mode: horizontal (0x20, 0x00)
     ret = display_write_command(display, 0x20);
     assert(ret == DISPLAY_OK);
     ret = display_write_command(display, 0x00);
     assert(ret == DISPLAY_OK);
 
-    // Enable display
+    // Enable display (0xAF)
     ret = display_write_command(display, 0xAF);
     assert(ret == DISPLAY_OK);
 
@@ -143,6 +143,33 @@ display_err_t display_write_data(display_handle_t* display, uint8_t* data, int l
 
     if (ret != ESP_OK) {
         return DISPLAY_ERR_IO;
+    }
+
+    return DISPLAY_OK;
+}
+
+display_err_t display_clear(display_handle_t* display) {
+    int ret;
+
+    // Enable driver data mode
+    gpio_set_level(display->gpio_num_cd, 1);
+
+    // Create empty transaction
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(spi_transaction_t));
+
+    // Initialize transaction
+    t.flags = SPI_TRANS_USE_TXDATA;
+    t.length = 32; // SPI transaction `tx_data` field is limited to 32 bits.
+
+    // Send transaction
+    // Transaction has to be sent mutiple times in order to fill whole display memory.
+    for (int i = 0; i < (DISPLAY_WIDTH * DISPLAY_HEIGHT / 32); i++) {
+        ret = spi_device_polling_transmit(display->spi_device, &t);
+
+        if (ret != ESP_OK) {
+            return DISPLAY_ERR_IO;
+        }
     }
 
     return DISPLAY_OK;
