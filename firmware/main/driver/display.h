@@ -1,10 +1,12 @@
 #pragma once
 
+#include <stdint.h>
+
 #include "driver/gpio.h"
 #include "driver/spi_master.h"
 
 #define DISPLAY_OK       0
-#define DISPLAY_ERR_INIT 1
+#define DISPLAY_ERR_IO   1
 
 typedef int display_err_t;
 
@@ -17,7 +19,12 @@ typedef struct {
 
 typedef struct {
     spi_device_handle_t spi_device;
+    gpio_num_t gpio_num_res;
+    gpio_num_t gpio_num_cd;
 } display_handle_t;
 
 display_err_t display_init(display_config_t* config, display_handle_t* display);
+
+display_err_t display_write_command(display_handle_t* display, uint8_t command);
+display_err_t display_write_data(display_handle_t* display, uint8_t* data, int length);
 

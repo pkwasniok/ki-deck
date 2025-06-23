@@ -1,5 +1,9 @@
 #include "display.h"
 
+#include <string.h>
+
+#include "utils/delay.h"
+
 #include "esp_log.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
@@ -7,9 +11,14 @@
 #define TAG "display"
 
 display_err_t display_init_spi(display_config_t* config, display_handle_t* display);
+display_err_t display_init_driver(display_config_t* config, display_handle_t* display);
 
 display_err_t display_init(display_config_t* config, display_handle_t* display) {
     int ret;
+
+    // Initialize handler
+    display->gpio_num_res = config->gpio_num_res;
+    display->gpio_num_cd = config->gpio_num_cd;
 
     // Initialize RES gpio
     gpio_set_direction(config->gpio_num_res, GPIO_MODE_OUTPUT);
@@ -21,6 +30,14 @@ display_err_t display_init(display_config_t* config, display_handle_t* display) 
 
     // Initialize SPI device
     ret = display_init_spi(config, display);
+
+    if (ret != DISPLAY_OK) {
+        ESP_LOGE(TAG, "Error occured during display initialization");
+        return ret;
+    }
+
+    // Initialize driver
+    ret = display_init_driver(config, display);
 
     if (ret != DISPLAY_OK) {
         ESP_LOGE(TAG, "Error occured during display initialization");
@@ -44,7 +61,88 @@ display_err_t display_init_spi(display_config_t* config, display_handle_t* displ
     ret = spi_bus_add_device(config->spi_host, &spi_config, &display->spi_device);
 
     if (ret != ESP_OK) {
-        return DISPLAY_ERR_INIT;
+        return DISPLAY_ERR_IO;
+    }
+
+    return DISPLAY_OK;
+}
+
+display_err_t display_init_driver(display_config_t* config, display_handle_t* display) {
+    int ret;
+
+    // Reset driver
+    gpio_set_level(config->gpio_num_res, 0);
+    delay_ms(100);
+    gpio_set_level(config->gpio_num_res, 1);
+    delay_ms(400);
+
+    // Disable display
+    ret = display_write_command(display, 0xAE);
+    assert(ret == DISPLAY_OK);
+
+    // Charge pump
+    ret = display_write_command(display, 0x8D);
+    assert(ret == DISPLAY_OK);
+    ret = display_write_command(display, 0x14);
+    assert(ret == DISPLAY_OK);
+
+    // Addressing mode: horizontal
+    ret = display_write_command(display, 0x20);
+    assert(ret == DISPLAY_OK);
+    ret = display_write_command(display, 0x00);
+    assert(ret == DISPLAY_OK);
+
+    // Enable display
+    ret = display_write_command(display, 0xAF);
+    assert(ret == DISPLAY_OK);
+
+    return DISPLAY_OK;
+}
+
+display_err_t display_write_command(display_handle_t* display, uint8_t command) {
+    int ret;
+
+    // Enable driver command mode
+    gpio_set_level(display->gpio_num_cd, 0);
+
+    // Create empty transaction
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(spi_transaction_t));
+
+    // Initialize transaction
+    t.flags = SPI_TRANS_USE_TXDATA;
+    t.length = 8;
+    (*t.tx_data) = command;
+
+    // Send transaction
+    ret = spi_device_polling_transmit(display->spi_device, &t);
+
+    if (ret != ESP_OK) {
+        return DISPLAY_ERR_IO;
+    }
+
+    return DISPLAY_OK;
+}
+
+display_err_t display_write_data(display_handle_t* display, uint8_t* data, int length) {
+    int ret;
+
+    // Enable driver data mode
+    gpio_set_level(display->gpio_num_cd, 1);
+
+    // Create empty transaction
+    spi_transaction_t t;
+    memset(&t, 0, sizeof(spi_transaction_t));
+
+    // Initialize transaction
+    t.length = length * 8;
+    t.tx_buffer = data;
+
+    // Send transaction
+    ret = spi_device_polling_transmit(display->spi_device, &t);
+
+    if (ret != ESP_OK) {
+        return DISPLAY_ERR_IO;
     }
 
     return DISPLAY_OK;
