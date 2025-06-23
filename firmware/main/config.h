@@ -1,0 +1,10 @@
+#pragma once
+
+#define CONFIG_LED_IONUM 15
+
+#define CONFIG_OLED_IONUM_SDA 18
+#define CONFIG_OLED_IONUM_SCK 19
+#define CONFIG_OLED_IONUM_CS  20
+#define CONFIG_OLED_IONUM_CD  1
+#define CONFIG_OLED_IONUM_RES 0
+
