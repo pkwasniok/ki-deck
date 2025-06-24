@@ -4,9 +4,15 @@
 #include "display/display.h"
 #include "graphics/graphics.h"
 #include "graphics/geometry.h"
+#include "graphics/image.h"
 
+#include <stdio.h>
+#include <math.h>
+
+#include "esp_littlefs.h"
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
+
 
 display_handle_t display;
 uint8_t display_buffer[1024];
@@ -31,6 +37,18 @@ void display_update_handler(void) {
 
 void app_main(void) {
     int ret;
+
+    // Initialize LittleFS
+
+    esp_vfs_littlefs_conf_t littlefs_config = {
+        .base_path = "/files",
+        .partition_label = "files",
+        .format_if_mount_failed = true,
+        .dont_mount = false,
+    };
+
+    ret = esp_vfs_littlefs_register(&littlefs_config);
+    assert(ret == ESP_OK);
 
     // Initialize SPI master
 
@@ -68,14 +86,47 @@ void app_main(void) {
 
     // Main loop
 
+    g_clear();
+
+    g_image(16, 16, "/files/logo.pbm", G_IMAGE_FORMAT_PBM);
+
+    g_update();
+
+    // int t = 0;
+    
     while (1) {
-        g_clear();
-
-        g_circle(0, 0, 32);
-
-        g_circle(127, 63, 32);
-
-        g_update();
+        // g_clear();
+        //
+        // for (int x = 0; x < 127; x++) {
+        //     if (x % 2 == 0)
+        //         g_point(x, 32);
+        // }
+        //
+        // for (int y = 0; y < 64; y++) {
+        //     if (y % 2 == 0)
+        //         g_point(64, y);
+        // }
+        //
+        // int a = 24 * sin(t * 0.022);
+        // int prev_x = 0;
+        // int prev_y = 32;
+        // for (int x = 0; x < 127; x++) {
+        //     int y = (a * sin((x + t) * 0.0498)) + 32;
+        //
+        //     if (x == 0)
+        //         g_point(x, y);
+        //     else
+        //         g_line(prev_x, prev_y, x, y);
+        //
+        //     prev_x = x;
+        //     prev_y = y;
+        // }
+        //
+        // g_update();
+        //
+        // t += 1;
+        // if (t > 286)
+        //     t = 0;
 
         delay_ms(10);
     }
