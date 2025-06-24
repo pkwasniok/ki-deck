@@ -71,11 +71,7 @@ void app_main(void) {
     while (1) {
         g_clear();
 
-        g_line(20, 0, 20, 63);
-        g_line(60, 0, 60, 63);
-
-        g_line(22, 32, 58, 32 - 6);
-        g_line(58, 34 + 6, 22, 34);
+        g_rect(0, 0, 16, 63);
 
         g_update();
 
