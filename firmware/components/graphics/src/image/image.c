@@ -31,41 +31,33 @@ void g_image(int x0, int y0, const char* filename, g_image_format_t format) {
 int pbm_header(FILE* file);
 int pbm_comment(FILE* file);
 int pbm_size(FILE* file, int* width, int* height);
-int pbm_data(FILE* file, uint8_t* buffer, int* length);
+int pbm_data(FILE* file, uint8_t* buffer, int* length, int width, int height);
 
 void image_pbm(int x0, int y0, FILE* file) {
     if (pbm_header(file) != 0) {
-        printf("Header is invalid\n");
+        ESP_LOGE(TAG, "Error occured while loading image. Image is invalid.");
         return;
     }
 
-    printf("Parsed header\n");
-
-    pbm_comment(file);
-
-    printf("Parsed comment\n");
+    if (pbm_comment(file) != 0) {
+        ESP_LOGE(TAG, "Error occured while loading image. Image is invalid.");
+        return;
+    }
 
     int width, height;
     if (pbm_size(file, &width, &height) != 0) {
-        printf("Size is invalid\n");
+        ESP_LOGE(TAG, "Error occured while loading image. Image is invalid.");
         return;
     }
-
-    printf("Parsed size (%d x %d)\n", width, height);
 
     uint8_t buffer[1024];
     int length = 1024;
-    pbm_data(file, buffer, &length);
-
-    if (length < (width * height / 8)) {
-        printf("Data is invalid\n");
+    if (pbm_data(file, buffer, &length, width, height) != 0) {
+        ESP_LOGE(TAG, "Error occured while loading image. Image is invalid.");
         return;
     }
 
-    printf("Parsed data (%d bytes)\n", length);
-
     int bytes_per_row = (width + 7) / 8;
-
     for (int y = 0; y < height; y++) {
         for (int x = 0; x < width; x++) {
             int byte_number = (y * bytes_per_row) + (x / 8);
@@ -134,7 +126,7 @@ int pbm_size(FILE* file, int* width, int* height) {
     return 0;
 }
 
-int pbm_data(FILE* file, uint8_t* buffer, int* length) {
+int pbm_data(FILE* file, uint8_t* buffer, int* length, int width, int height) {
     int i = 0;
     int c = 0;
 
@@ -143,6 +135,10 @@ int pbm_data(FILE* file, uint8_t* buffer, int* length) {
     }
 
     (*length) = i;
+
+    if (i < (width * height / 8)) {
+        return 1;
+    }
 
     return 0;
 }
