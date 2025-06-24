@@ -1,6 +1,6 @@
 #include "graphics/graphics.h"
 
-#include <stdio.h>
+#include <stdlib.h>
 
 g_matrix_t g_matrix;
 
@@ -26,7 +26,7 @@ void g_update(void) {
 
 void g_clear(void) {
     for (int x = 0; x < G_MATRIX_WIDTH; x++) {
-        for (int y = 0; y < G_MATRIX_WIDTH; y++) {
+        for (int y = 0; y < G_MATRIX_HEIGHT; y++) {
             g_matrix[x][y] = 0;
         }
     }

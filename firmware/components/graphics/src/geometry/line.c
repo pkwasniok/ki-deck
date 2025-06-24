@@ -2,6 +2,7 @@
 #include "graphics/geometry.h"
 
 #include <stdlib.h>
+#include <assert.h>
 
 void line_horizontal(int, int, int, int);
 void line_vertical(int, int, int, int);
@@ -14,7 +15,7 @@ void g_line(int x0, int y0, int x1, int y1) {
     int dy = y1 - y0;
 
     if (dx == 0 && dy == 0) {
-        g_matrix[x0][y0] = 255;
+        G_MATRIX_SET(x0, y0);
     } else if (dy == 0) {
         line_horizontal(x0, y0, x1, y1);
     } else if (dx == 0) {
@@ -46,29 +47,33 @@ void line_bresenham(int x0, int y0, int x1, int y1) {
 }
 
 void line_horizontal(int x0, int y0, int x1, int y1) {
+    assert(y1 - y0 == 0);
+
     int dx = x1 - x0;
 
     if (dx >= 0) {
         for (int x = x0; x <= x1; x++) {
-            g_matrix[x][y0] = 255;
+            G_MATRIX_SET(x, y0);
         }
     } else {
         for (int x = x1; x <= x0; x++) {
-            g_matrix[x][y0] = 255;
+            G_MATRIX_SET(x, y0);
         }
     }
 }
 
 void line_vertical(int x0, int y0, int x1, int y1) {
+    assert(x1 - x0 == 0);
+
     int dy = y1 - y0;
 
     if (dy >= 0) {
         for (int y = y0; y <= y1; y++) {
-            g_matrix[x0][y] = 255;
+            G_MATRIX_SET(x0, y);
         }
     } else {
         for (int y = y1; y <= y0; y++) {
-            g_matrix[x0][y] = 255;
+            G_MATRIX_SET(x0, y);
         }
     }
 }
@@ -87,7 +92,7 @@ void line_bresenham_high(int x0, int y0, int x1, int y1) {
     int y = y0;
     int D = (2 * dy) - dx;
     for (; x <= x1; x++) {
-        g_matrix[x][y] = 255;
+        G_MATRIX_SET(x, y);
 
         if (D > 0) {
             y += yi;
@@ -112,7 +117,7 @@ void line_bresenham_low(int x0, int y0, int x1, int y1) {
     int y = y0;
     int D = (2 * dx) - dy;
     for (; y <= y1; y++) {
-        g_matrix[x][y] = 255;
+        G_MATRIX_SET(x, y);
 
         if (D > 0) {
             x += xi;
