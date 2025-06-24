@@ -5,8 +5,6 @@
 #include "graphics/graphics.h"
 #include "graphics/geometry.h"
 
-#include <math.h>
-
 #include "driver/spi_common.h"
 #include "driver/spi_master.h"
 
@@ -63,26 +61,23 @@ void app_main(void) {
     ret = display_clear(&display);
     assert(ret == DISPLAY_OK);
 
-    g_init();
+    // Initialize graphics
 
+    g_init();
     g_register_event_handler(G_EVENT_UPDATE, display_update_handler);
 
-    int t = 0;
+    // Main loop
 
     while (1) {
         g_clear();
 
-        g_line(0, 32, 127, 32);
-        g_line(64, 0, 64, 63);
-        g_line(0, 0, 127, 63);
-        g_line(127, 0, 0, 63);
+        g_line(20, 0, 20, 63);
+        g_line(60, 0, 60, 63);
+
+        g_line(22, 32, 58, 32 - 6);
+        g_line(58, 34 + 6, 22, 34);
 
         g_update();
-
-        t += 1;
-        if (t >= 251) {
-            t = 0;
-        }
 
         delay_ms(10);
     }

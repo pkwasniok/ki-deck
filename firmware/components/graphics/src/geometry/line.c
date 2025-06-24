@@ -86,7 +86,7 @@ void line_bresenham_high(int x0, int y0, int x1, int y1) {
     int x = x0;
     int y = y0;
     int D = (2 * dy) - dx;
-    for (; x < x1; x++) {
+    for (; x <= x1; x++) {
         g_matrix[x][y] = 255;
 
         if (D > 0) {
@@ -108,10 +108,10 @@ void line_bresenham_low(int x0, int y0, int x1, int y1) {
         xi = -1;
     }
 
-    int x = x1;
-    int y = y1;
+    int x = x0;
+    int y = y0;
     int D = (2 * dx) - dy;
-    for (; y < y1; y++) {
+    for (; y <= y1; y++) {
         g_matrix[x][y] = 255;
 
         if (D > 0) {
