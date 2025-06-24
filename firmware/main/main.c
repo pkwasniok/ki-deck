@@ -71,7 +71,9 @@ void app_main(void) {
     while (1) {
         g_clear();
 
-        g_rect(0, 0, 16, 63);
+        g_circle(64, 32, 16);
+
+        g_line(64, 32, 64 + 14, 32);
 
         g_update();
 
