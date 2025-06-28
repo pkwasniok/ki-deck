@@ -85,7 +85,27 @@ void app_main(void) {
 
     // Main loop
 
-    g_font_load("/files/font.bdf");
+    g_font_t font;
+    g_font_load("/files/font.bdf", G_FONT_FORMAT_BDF, &font);
+
+    g_glyph_t *glyph = &font.glyphs[42];
+
+    printf("%c\n", glyph->code);
+
+    int bytes_per_row = (glyph->width + 7) / 8;
+    for (int y = 0; y < glyph->height; y++) {
+        for (int x = 0; x < glyph->width; x++) {
+            int byte_number = (y * bytes_per_row) + (x / 8);
+            int bit_number = 7 - (x % 8);
+
+            if (glyph->buffer[byte_number] & (1 << bit_number)) {
+                printf("@");
+            } else {
+                printf(" ");
+            }
+        }
+        printf("\n");
+    }
 
     while (1) {
 
