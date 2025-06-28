@@ -12,6 +12,7 @@ typedef struct {
     int code;
     int width;
     int height;
+    int shift;
     int offset_x;
     int offset_y;
     uint8_t* buffer;
@@ -28,4 +29,6 @@ typedef struct {
 } g_font_t;
 
 void g_font_load(const char* filename, const g_font_format_t format, g_font_t* font);
+
+void g_text(int x0, int y0, char* text, g_font_t* font);
 
