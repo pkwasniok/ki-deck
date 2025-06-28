@@ -4,9 +4,11 @@
 #include "display/display.h"
 #include "graphics/graphics.h"
 #include "graphics/geometry.h"
+#include "graphics/image.h"
 #include "graphics/text.h"
 
 #include <stdio.h>
+#include <math.h>
 
 #include "esp_littlefs.h"
 #include "driver/spi_common.h"
@@ -88,13 +90,29 @@ void app_main(void) {
     g_font_t font;
     g_font_load("/files/font.bdf", G_FONT_FORMAT_BDF, &font);
 
-    g_clear();
+    int volume = 65;
 
-    g_text(0, 0, "Volume: 100%", &font);
-
-    g_update();
+    int t = 0;
 
     while (1) {
+        g_clear();
+
+        g_image(64 - (42 / 2), 32 - (42 / 2) - 2, "/files/headphones.pbm", G_IMAGE_FORMAT_PBM);
+
+        for (int i = 0; i < (int)(((volume + (25 * sin(t*0.01))) / 100.0) * 127); i++) {
+            g_line(i, 63, i, 63-2);
+        }
+
+        for (int i = 0; i < 127; i+=3) {
+            g_point(i, 63 - 1);
+        }
+
+        g_update();
+
+        t += 1;
+        if (t >= 629)
+            t = 0;
+
         delay_ms(10);
     }
 }
